@@ -1,0 +1,95 @@
+package com.seal.hackathon.controller;
+
+import com.seal.hackathon.dto.request.CreateTeamRequest;
+import com.seal.hackathon.dto.request.RejectTeamRequest;
+import com.seal.hackathon.dto.response.ActiveEventResponse;
+import com.seal.hackathon.dto.response.ApiResponse;
+import com.seal.hackathon.dto.response.MyTeamResponse;
+import com.seal.hackathon.dto.response.TeamDetailResponse;
+import com.seal.hackathon.dto.response.TeamResponse;
+import com.seal.hackathon.security.UserPrincipal;
+import com.seal.hackathon.service.TeamService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/teams")
+@RequiredArgsConstructor
+public class TeamController {
+
+    private final TeamService teamService;
+
+    // ── Participant endpoints ────────────────────────────────────────
+
+    @PostMapping
+    @PreAuthorize("hasRole('PARTICIPANT')")
+    public ResponseEntity<ApiResponse<TeamResponse>> createTeam(
+            @Valid @RequestBody CreateTeamRequest request,
+            Authentication authentication) {
+        UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+        return ResponseEntity.ok(ApiResponse.success(
+                "Team created successfully. You are now the Team Leader.",
+                teamService.createTeam(principal.getUserId(), request)));
+    }
+
+    @GetMapping("/my")
+    @PreAuthorize("hasRole('PARTICIPANT')")
+    public ResponseEntity<ApiResponse<MyTeamResponse>> getMyTeam(Authentication authentication) {
+        UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+        return ResponseEntity.ok(ApiResponse.success("My team retrieved successfully.",
+                teamService.getMyTeam(principal.getUserId())));
+    }
+
+    @GetMapping("/active-events")
+    public ResponseEntity<ApiResponse<List<ActiveEventResponse>>> getActiveEvents() {
+        return ResponseEntity.ok(ApiResponse.success("Active events retrieved successfully.",
+                teamService.getActiveEventsWithTracks()));
+    }
+
+    // ── Coordinator endpoints ────────────────────────────────────────
+
+    @GetMapping("/event/{eventId}")
+    @PreAuthorize("hasRole('EVENT_COORDINATOR')")
+    public ResponseEntity<ApiResponse<List<TeamDetailResponse>>> getTeamsByEvent(@PathVariable Integer eventId) {
+        return ResponseEntity.ok(ApiResponse.success("Teams retrieved successfully.",
+                teamService.getTeamsByEvent(eventId)));
+    }
+
+    @GetMapping("/{teamId}")
+    @PreAuthorize("hasAnyRole('EVENT_COORDINATOR', 'MENTOR', 'JUDGE')")
+    public ResponseEntity<ApiResponse<TeamDetailResponse>> getTeamById(@PathVariable Integer teamId) {
+        return ResponseEntity.ok(ApiResponse.success("Team retrieved successfully.",
+                teamService.getTeamById(teamId)));
+    }
+
+    @PutMapping("/{teamId}/approve")
+    @PreAuthorize("hasRole('EVENT_COORDINATOR')")
+    public ResponseEntity<ApiResponse<TeamDetailResponse>> approveTeam(@PathVariable Integer teamId) {
+        return ResponseEntity.ok(ApiResponse.success("Team approved successfully.",
+                teamService.approveTeam(teamId)));
+    }
+
+    @PutMapping("/{teamId}/reject")
+    @PreAuthorize("hasRole('EVENT_COORDINATOR')")
+    public ResponseEntity<ApiResponse<TeamDetailResponse>> rejectTeam(
+            @PathVariable Integer teamId,
+            @RequestBody(required = false) RejectTeamRequest request) {
+        return ResponseEntity.ok(ApiResponse.success("Team rejected.",
+                teamService.rejectTeam(teamId, request)));
+    }
+
+    @PutMapping("/{teamId}/disqualify")
+    @PreAuthorize("hasRole('EVENT_COORDINATOR')")
+    public ResponseEntity<ApiResponse<TeamDetailResponse>> disqualifyTeam(
+            @PathVariable Integer teamId,
+            @RequestBody(required = false) RejectTeamRequest request) {
+        return ResponseEntity.ok(ApiResponse.success("Team disqualified.",
+                teamService.disqualifyTeam(teamId, request)));
+    }
+}
