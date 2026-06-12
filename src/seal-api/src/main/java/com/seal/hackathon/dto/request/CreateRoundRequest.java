@@ -25,5 +25,8 @@ public class CreateRoundRequest {
 
     private Integer topNAdvance;
 
+    // TRUE = final round (judges score all teams, no per-track split)
+    private Boolean isFinal = false;
+
     private Boolean isCalibration = false;
 }

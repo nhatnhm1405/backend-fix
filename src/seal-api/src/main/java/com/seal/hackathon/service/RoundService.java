@@ -61,6 +61,7 @@ public class RoundService {
                 .endTime(request.getEndTime())
                 .submissionDeadline(request.getSubmissionDeadline())
                 .topNAdvance(request.getTopNAdvance())
+                .isFinal(request.getIsFinal() != null ? request.getIsFinal() : false)
                 .isCalibration(request.getIsCalibration() != null ? request.getIsCalibration() : false)
                 .status("PENDING")
                 .build();
@@ -93,6 +94,9 @@ public class RoundService {
         if (request.getTopNAdvance() != null) {
             round.setTopNAdvance(request.getTopNAdvance());
         }
+        if (request.getIsFinal() != null) {
+            round.setIsFinal(request.getIsFinal());
+        }
         if (request.getIsCalibration() != null) {
             round.setIsCalibration(request.getIsCalibration());
         }
@@ -115,6 +119,7 @@ public class RoundService {
                 .endTime(round.getEndTime())
                 .submissionDeadline(round.getSubmissionDeadline())
                 .topNAdvance(round.getTopNAdvance())
+                .isFinal(round.getIsFinal())
                 .isCalibration(round.getIsCalibration())
                 .status(round.getStatus())
                 .build();
@@ -130,6 +135,7 @@ public class RoundService {
                 .endTime(round.getEndTime())
                 .submissionDeadline(round.getSubmissionDeadline())
                 .topNAdvance(round.getTopNAdvance())
+                .isFinal(round.getIsFinal())
                 .isCalibration(round.getIsCalibration())
                 .status(round.getStatus())
                 .build();

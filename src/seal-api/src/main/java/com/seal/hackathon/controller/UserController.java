@@ -75,7 +75,7 @@ public class UserController {
 
     /**
      * GET /api/users/roles
-     * Lists every staff role assignment (UserEventRole), with role/event/track/round/assigner
+     * Lists every staff role grant (UserEventRole), with role/event/assigner
      * names already resolved — the UI must display names, never raw IDs.
      */
     @GetMapping("/roles")
@@ -108,13 +108,16 @@ public class UserController {
 
     /**
      * POST /api/users/{id}/roles
-     * Assigns a role to a user. Can be scoped to event/track/round.
+     * Grants a role to a user (UserEventRole). When roundId/trackId is provided,
+     * the concrete work assignment (JudgeAssignment / MentorAssignment) is created
+     * in the same step.
      *
-     * Example request body:
+     * Example request body (judge scoring track 1 in a non-final round):
      * {
      *   "roleName": "JUDGE",
      *   "eventId": 1,
      *   "roundId": 2,
+     *   "trackId": 1,
      *   "judgeType": "INTERNAL"
      * }
      */
